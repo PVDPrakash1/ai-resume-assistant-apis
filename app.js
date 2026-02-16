@@ -6,8 +6,8 @@ const upload = require('./middleware/upload.js');
 const { extractTextFromFile } = require('./utils/textExtraction.js');
 const { getResumeImprovements } = require("./utils/aiService.js")
 
-app.use(cors({ origin : 'https://pvdprakash.com'}));
-//app.use(cors({ origin : '*'}));
+//app.use(cors({ origin : 'https://pvdprakash.com'}));
+app.use(cors({ origin : '*'}));
 
 app.get("/", (req, res) => {
     res.send('<h3>Welcome to AI Resume Assistant</h3>');
