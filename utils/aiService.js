@@ -29,7 +29,8 @@ Tasks:
     input: prompt,
   });
 
-  return response.outer_text;
+
+  return response.output_text;
 }
 
 module.exports = { getResumeImprovements };

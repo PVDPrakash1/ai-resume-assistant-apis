@@ -1,32 +1,35 @@
-const pdfJs = require('pdfjs-dist/legacy/build/pdf.mjs');
-const mammoth = require('mammoth');
+import { PDFParse } from "pdf-parse";
+import { extractRawText } from 'mammoth';
 
-const getExtractFromPdf = async (buffer) => {
-    const uint8Array = new Uint8Array(buffer);
-    const pdf = await pdfJs.getDocument({data: uint8Array}).promise;
-    let text = ''
-    for(let i = 1; i<=pdf.numPages; i++){
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        text += content.items.map((item) => item.str).join(" ") + "\n";
-    }
-    return text;
+async function parsePDF(file) {
+  const parser = new PDFParse(file);
+  const data = await parser.getText();
+  const info = await parser.getInfo({ parsePageInfo: true });
+  return { text: data?.text || "", info, numpages: info?.pages || 0 };
 }
 
 const getExtractFromDOCX = async (buffer) => {
-    const result = await mammoth.extractRawText({buffer})
+    const result = await extractRawText({ buffer })
     return result.value;
 }
 
-const extractTextFromFile = (file) => {
-        const fileBuffer = file.buffer;
-        if(file.mimetype == 'application/pdf'){
-            return getExtractFromPdf(fileBuffer);
-        }
+const extractTextFromFile = async (file) => {
+    const fileBuffer = file.buffer;
+    const pdfContent = "";
+    if (file.mimetype == 'application/pdf') {
+        const unit8ArrayData = new Uint8Array(fileBuffer);
+        const {text, numpages, info } = await parsePDF(unit8ArrayData);
+        // for (let pageNo = 1; pageNo <= numpages; pageNo += 1) {
+        //     const content = text.pages[pageNo].text;
+        //     pdfContent += content;
+        // }
+        // console.log(pdfContent);
+        return text;
+    }
 
-        if(file.mimetype == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'){
-            return getExtractFromDOCX(fileBuffer);
-        }
+    if (file.mimetype == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        return getExtractFromDOCX(fileBuffer);
+    }
 }
 
-module.exports = { extractTextFromFile };
+export  { extractTextFromFile };

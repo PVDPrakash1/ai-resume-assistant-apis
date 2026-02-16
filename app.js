@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const app = express(); 
 const cors = require("cors");
@@ -5,7 +6,8 @@ const upload = require('./middleware/upload.js');
 const { extractTextFromFile } = require('./utils/textExtraction.js');
 const { getResumeImprovements } = require("./utils/aiService.js")
 
-app.use(cors({ origin : 'https://pvdprakash.com'}));
+//app.use(cors({ origin : 'https://pvdprakash.com'}));
+app.use(cors({ origin : '*'}));
 
 app.get("/", (req, res) => {
     res.send('<h3>Welcome to AI Resume Assistant</h3>');
@@ -44,15 +46,15 @@ app.post("/analyze-resume", upload.single("file"), async (req, res) => {
         const matchedScore = (matchedSkills.length/keywords.length) * 100;
         getResumeImprovements(resumeText, jobDescription, missedSkills).then((aiResponse) => {
             res.send({
-            'success': true,
-            'aiSuggestions': aiResponse,
-            'fileName': file.originalname, 
-            'score': Math.round(matchedScore * 10) / 10,
-            'matchedSkills': matchedSkills,
-            'missedSkills': missedSkills, 
-            'resumeLength': resumeText.length, 
-            'jobDescriptionLength': jobDescription.length,
-        });
+                'success': true,
+                'aiSuggestions': aiResponse,
+                'fileName': file.originalname, 
+                'score': Math.round(matchedScore * 10) / 10,
+                'matchedSkills': matchedSkills,
+                'missedSkills': missedSkills, 
+                'resumeLength': resumeText.length, 
+                'jobDescriptionLength': jobDescription.length,
+            });
         });
         
     }
